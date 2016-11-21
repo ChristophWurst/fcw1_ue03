@@ -1,0 +1,3 @@
+// IdDFA:
+-> B -> b R 
+() R -> b R | z R 

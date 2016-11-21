@@ -1,0 +1,5 @@
+// simple non-deterministic automaton
+
+-> S -> 0 S | 0 A | 1 S
+   A -> 1 E
+() E ->

@@ -39,11 +39,58 @@ using namespace std;
 #endif
 
 
+NFA *nfaOf(const Grammar *g) {
+    if (!g->isRegular()) {
+        cout << "No Regular Grammar" << endl;
+        return new NFA();
+    }
+    map<string,string> states;
+    for (auto e : g->rules) {
+        bool isEndState = false;
+        // add state from NTSymbol
+        states[e.first->name] = e.first->name + " -> ";
+        int counter = 0;
+        for (auto f : e.second) {
+            std::ostringstream stream;
+            stream << *f;
+            if (f->hasTerminalsOnly()) {
+                // add State to transition to TSymbol
+                stream << " " << e.first->name;
+                if (!isEndState) {
+                    // add () to mark end state
+                    isEndState = true;
+                    states[e.first->name] = "() " + states[e.first->name];
+                }
+            }
+            states[e.first->name] += stream.str() + (counter < e.second.size() - 1 ? " | " : "");
+            counter++;
+        }
+        // mark start state
+        if (e.first == g->root) {
+            states[e.first->name] = "-> " + states[e.first->name];
+        }
+    }
+    // add linebreak
+    for (auto e : states) {
+        states[e.first] = e.second + " \n";
+    }
+    // create nfaString
+    string nfaString = "";
+    for (auto e : states) {
+        nfaString += e.second;
+    }
+    return new NFA(nfaString.c_str());
+}
 
+Grammar *grammarOf(const NFA *nfa) {
+    string grammarString = "G(" + string(1, nfa->s1) + "):\n";
+    cout << grammarString << endl;
+    return nullptr;
+}
 
 // *** main function: test program for NFA ***
 
-int main(int argc, char *argv[]) {
+int main() {
 
 try {
 
@@ -151,6 +198,8 @@ try {
   cout << endl;
   cout << "nfa.accepts (\"cbbbbbbbbc\") = " << nfa.accepts2 ("cbbbbbbbbc") << endl;
   cout << endl;
+  cout << "nfa.accepts (\"caaaaaaaac\") = " << nfa.accepts2 ("caaaaaaaac") << endl;
+  cout << endl;
   cout << "nfa.accepts (\"aba\") = " << nfa.accepts2 ("aba") << endl;
   cout << endl;
   cout << "nfa.accepts (\"ab\") = " << nfa.accepts2 ("ab") << endl;
@@ -170,8 +219,8 @@ try {
 
   auto g = new Grammar(
     "G(S):              \n\
-     S -> a | a B | c C      \n\
-     C -> a B       \n\
+     S -> a | a B | c C \n\
+     C -> a B           \n\
      B -> b                ");
 
 //  auto g = new Grammar(
@@ -180,7 +229,6 @@ try {
 
   NFA* myNfa = nfaOf(g);
   cout << "myNfa.accepts (\"a\") = " << myNfa->accepts("a") << endl;
-  delete g;
   cout << "MyGrammar: " << endl;
   cout << *g << endl;
   cout << "MyNfa: " << endl;
@@ -202,3 +250,4 @@ try {
 
 // end of NFATest.cpp
 //======================================================================
+

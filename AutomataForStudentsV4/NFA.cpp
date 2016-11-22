@@ -25,7 +25,7 @@ using namespace std;
 void NFA::initialize() {
   // initialize delta with undefined transitions only
   for (State s = 0; s < STATES; s++) {
-    for (TapeSymbol sy = 0; sy < SYMBOLS; sy++) { // includes EPS (== '£')
+    for (TapeSymbol sy = 0; sy < SYMBOLS; sy++) { // includes EPS (== 'ï¿½')
       delta[s][sy] = StateSet(); // empty set, {}
     } // for
   } // for
@@ -52,7 +52,7 @@ NFA::NFA() {
 NFA::NFA(const NFA &nfa)
 : FA(nfa) {
   for (State s = 0; s < STATES; s++) {
-    for (TapeSymbol sy = 0; sy < SYMBOLS; sy++) { // includes EPS (== '£')
+    for (TapeSymbol sy = 0; sy < SYMBOLS; sy++) { // includes EPS (== 'ï¿½')
       delta[s][sy] = nfa.delta[s][sy];
     } // for
   } // for
@@ -82,13 +82,17 @@ NFA::~NFA() {
 //-------------
 
 bool NFA::accepts(const TapeSymbol tape[]) const {
-  return accepts(s1, tape, 0);
+  int numCalls =0;
+  auto result = accepts(s1, tape, 0, numCalls);
+  cout << "Number of Calls in accepts: " << numCalls << endl;
+  return result;
 } // NFA::accepts
 
 
-bool NFA::accepts(State s, const TapeSymbol tape[], int i) const {
+bool NFA::accepts(State s, const TapeSymbol tape[], int i, int &numCalls) const {
+  numCalls++;
   for (State epsDest: delta[s][EPSILON]) {
-    if ( accepts(epsDest, tape, i) ) // recursive call
+    if ( accepts(epsDest, tape, i, numCalls) ) // recursive call
       return true;
   } // for
   TapeSymbol sy = tape[i];
@@ -98,7 +102,7 @@ bool NFA::accepts(State s, const TapeSymbol tape[], int i) const {
   if (syDestStates.empty())
     return false; // not accepted as no next state defined
   for (State syDest: syDestStates) {
-    if ( accepts(syDest, tape, i + 1) ) // recursive call
+    if ( accepts(syDest, tape, i + 1, numCalls) ) // recursive call
       return true;
   } //for
   return false;   /*not accepted as no call succeeded*/
@@ -145,20 +149,24 @@ StateSet NFA::allDestinationsFor(const StateSet &src, TapeSymbol sy) const {
 //--------------
 
 bool NFA::accepts2(const TapeSymbol tape[]) const {
-
+  int numberOfStates = 0;
   int        i  = 0;         // index of first symbol
   TapeSymbol sy = tape[0];   // fetch first symbol
   StateSet   ss = epsilonClosureOf(StateSet(s1));
 
   while (sy != EOT_SYMBOL) { // EOT = end of tape
     StateSet ad = allDestinationsFor(ss, sy);
-    if (ad.empty())
+    if (ad.empty()) {
+      cout << "Number of states considered in accepts2: no acceptance" << endl;
       return false;          // undefined, no acceptance
+    }
     ss = epsilonClosureOf(ad);
+    numberOfStates += ss.size();
     i++;
     sy = tape[i];
   } // while
 
+  cout << "Number of states considered in accepts2: " << numberOfStates << endl;
   return !intersection(ss, F).empty(); // accepted <==> intersection(ss,  F) != {}
 
 } // NFA::accepts2

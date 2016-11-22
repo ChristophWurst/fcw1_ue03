@@ -42,7 +42,7 @@ class NFA: public FA,
     virtual ~NFA();
 
     bool accepts(const TapeSymbol tape[]) const; // uses backtracking via method:
-    bool accepts(State s, const TapeSymbol tape[], int i) const;
+    bool accepts(State s, const TapeSymbol tape[], int i, int &numCalls) const;
 
     StateSet epsilonClosureOf(      State     src) const; // calls:
     StateSet epsilonClosureOf(const StateSet &src) const;

@@ -17,6 +17,7 @@ using namespace std;
 #include "StateStuff.h"
 #include "FA.h"
 #include "DFA.h"
+#include "Moore.h"
 
 
 // Activation (1) allows simple building via command line
@@ -108,12 +109,23 @@ try {
   cout << "acceptsIdentifier(\"z\")   = " << acceptsIdentifier("z")   << endl;
   cout << endl;
 
+  cout << "Moore test" << endl;
+    Moore moore(
+    "-> B -> b R        \n\
+     () R -> b R | z R     ");
+    moore.transMap['b'] = 'c';
+    moore.transMap['z'] = 'd';
+  cout << "moore transform(\"bzzb\") => cddc    = " << moore.transformer("bzzb")     << endl;
+  cout << "moore no transform(\"z\") => empty       = " << moore.transformer("z")       << endl;
+
+
+
+
 #else // none of the ACCEPT_TESTCASEs above
 
   cerr << "ERROR: invalid ACCEPT_TESTCASE == " << ACCEPT_TESTCASE << endl;
 
 #endif
-
 
 // *** test case selection ***
 #define MINIMIZATION_TESTCASE 1

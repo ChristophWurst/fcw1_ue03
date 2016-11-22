@@ -1,3 +1,5 @@
 /AutomataForStudentsV4/bin/
 /AutomataForStudentsV4/build/
 AutomataForStudentsV4/nbproject/private
+*.gv
+a.out

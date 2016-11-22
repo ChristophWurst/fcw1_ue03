@@ -19,6 +19,9 @@ using namespace std;
 #include "FA.h"
 #include "DFA.h"
 #include "NFA.h"
+#include "SequenceStuff.h"
+#include "Vocabulary.h"
+#include "Grammar.h"
 
 // Activation (1) allows simple building via command line
 //   * for GNU       use:  g++ -std=c++11 NFATest.cpp
@@ -31,7 +34,11 @@ using namespace std;
   #include "FA.cpp"
   #include "DFA.cpp"
   #include "NFA.cpp"
+  #include "SequenceStuff.cpp"
+  #include "Grammar.cpp"
 #endif
+
+
 
 
 // *** main function: test program for NFA ***
@@ -130,6 +137,25 @@ try {
 #endif
 
   cout << "NFA:" << endl << nfa << endl;
+
+  // try to accept sequences
+  cout << "nfa.accepts (\"bbbbbbbbc\") = " << nfa.accepts ("bbbbbbbbc") << endl;
+  cout << endl;
+  cout << "nfa.accepts (\"cbbbbbbbbc\") = " << nfa.accepts ("cbbbbbbbbc") << endl;
+  cout << endl;
+  cout << "nfa.accepts (\"aba\") = " << nfa.accepts ("aba") << endl;
+  cout << endl;
+  cout << "nfa.accepts (\"ab\") = " << nfa.accepts ("ab") << endl;
+  cout << endl;
+  cout << "nfa.accepts (\"bbbbbbbbc\") = " << nfa.accepts2 ("bbbbbbbbc") << endl;
+  cout << endl;
+  cout << "nfa.accepts (\"cbbbbbbbbc\") = " << nfa.accepts2 ("cbbbbbbbbc") << endl;
+  cout << endl;
+  cout << "nfa.accepts (\"aba\") = " << nfa.accepts2 ("aba") << endl;
+  cout << endl;
+  cout << "nfa.accepts (\"ab\") = " << nfa.accepts2 ("ab") << endl;
+  cout << endl;
+
   DFA dfa = nfa.dfaOf();
   cout << "DFA:" << endl << dfa << endl;
   dfa.generateGraphVizFile("DfaOfNfa.gv");
@@ -142,6 +168,29 @@ try {
   cerr <<  "ERROR (" << typeid(e).name() << "): " << e.what() << endl;
 } // catch
 
+  auto g = new Grammar(
+    "G(S):              \n\
+     S -> a | a B | c C      \n\
+     C -> a B       \n\
+     B -> b                ");
+
+//  auto g = new Grammar(
+//    "G(A):              \n\
+//     A -> a A | b       ");
+
+  NFA* myNfa = nfaOf(g);
+  cout << "myNfa.accepts (\"a\") = " << myNfa->accepts("a") << endl;
+  delete g;
+  cout << "MyGrammar: " << endl;
+  cout << *g << endl;
+  cout << "MyNfa: " << endl;
+  cout << *myNfa << endl;
+  g = grammarOf(myNfa);
+  cout << "MyGrammar: " << endl;
+  cout << g << endl;
+  delete g;
+  delete myNfa;
+
   cout << "END NFATest" << endl;
 
   // cout << "type CR to continue ...";
@@ -153,4 +202,3 @@ try {
 
 // end of NFATest.cpp
 //======================================================================
-
